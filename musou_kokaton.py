@@ -51,7 +51,7 @@ class Bird(pg.sprite.Sprite):
         """
         こうかとん画像Surfaceを生成する
         引数1 num：こうかとん画像ファイル名の番号
-        引数2 xy：こうかとん画像の位置座標タプル
+        引数2 xy：こうかとん画像の位置座標タプル 
         """
         super().__init__()
         img0 = pg.transform.rotozoom(pg.image.load(f"ex04/fig/{num}.png"), 0, 2.0)
