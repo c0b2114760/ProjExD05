@@ -258,7 +258,7 @@ class Enemy(pg.sprite.Sprite):
     """
     敵機に関するクラス
     """
-    imgs = [pg.image.load(f"ex04/fig/alien{i}.png") for i in range(1, 4)]
+    imgs = [pg.image.load(f"EX04/fig/alien{i}.png") for i in range(1, 4)]
     
     def __init__(self):
         super().__init__()
@@ -325,6 +325,22 @@ class Score:
         screen.blit(self.image, self.rect)
 
 
+class Shield(pg.sprite.Sprite):
+
+    def __init__(self, bird: Bird, life: int):
+        super().__init__()
+        self.image = pg.Surface((20, bird.rect.height*2))
+        self.image.fill((0, 0, 0))  # Black color
+        self.rect = self.image.get_rect()
+        self.rect.center = bird.rect.center
+        self.life = life
+
+    def update(self):
+        self.life -= 1
+        if self.life < 0:
+            self.kill()
+
+
 def main():
     pg.display.set_caption("真！こうかとん無双")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -336,9 +352,9 @@ def main():
     beams = pg.sprite.Group()
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
+    shields = pg.sprite.Group()
     gravities = pg.sprite.Group()
 
-    
     tmr = 0
     clock = pg.time.Clock()
     while True:
@@ -401,11 +417,22 @@ def main():
                 time.sleep(2)
                 return
 
+        if key_lst[pg.K_CAPSLOCK] and score.score > 50 and len(shields) == 0:
+            score.score_up(-50)  # Deduct 50 points from the score
+            shields.add(Shield(bird, 400))  # Add the defensive wall to the shields group
+
+        for shield in shields:
+            bombs_collided = pg.sprite.spritecollide(shield,bombs,True)
+            for bomb in bombs_collided:
+                exps.add(Explosion(bomb,50))
+
         bird.update(key_lst, screen)
         beams.update()
         beams.draw(screen)
         emys.update()
         emys.draw(screen)
+        shields.update()
+        shields.draw(screen)
         bombs.update()
         bombs.draw(screen)
         exps.update()
@@ -416,6 +443,7 @@ def main():
         pg.display.update()
         tmr += 1
         clock.tick(50)
+        
 
 
 if __name__ == "__main__":
@@ -423,3 +451,6 @@ if __name__ == "__main__":
     main()
     pg.quit()
     sys.exit()
+
+
+
