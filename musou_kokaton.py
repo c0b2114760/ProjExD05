@@ -162,8 +162,6 @@ class Beam(pg.sprite.Sprite):
         self.rect.centerx = bird.rect.centerx + bird.rect.width*self.vx
         self.speed = 10
 
-        # rad = 0 # Beamクラスのイニシャライザの引数に回転角度（デフォルトで0）を追加する
-        
 
     def update(self):
         """
@@ -188,26 +186,17 @@ class NeoBeam(pg.sprite.Sprite):
         """
         start_angle = -50
         end_angle = 51
-  
+        
         range_size = end_angle - start_angle
-        angle_interval = range_size / self.num
+        angle_interval = range_size / (self.num-1)
 
-        angles = [start_angle + i * angle_interval for i in range(self.num+1)]
+        angles = [start_angle + i * angle_interval for i in range(self.num)]
 
+        print(angles)
 
-        neo_beams = [Beam(self.bird,rad=angles[i]) for i in range(self.num+1)]
+        neo_beams = [Beam(self.bird,rad=angles[i]) for i in range(self.num)]
         return neo_beams
     
-    def update(self):
-        """
-        ビームを速度ベクトルself.vx, self.vyに基づき移動させる
-        引数 screen：画面Surface
-        """
-        self.rect.move_ip(+self.speed*self.vx, +self.speed*self.vy)
-        if check_bound(self.rect) != (True, True):
-            self.kill()
-    
-
 
 
 class Explosion(pg.sprite.Sprite):
@@ -301,7 +290,6 @@ def main():
     emys = pg.sprite.Group()
 
     
-
     tmr = 0
     clock = pg.time.Clock()
     while True:
@@ -309,25 +297,21 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
-            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                beams.add(Beam(bird))
             
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE and key_lst[pg.K_LSHIFT] :
-                
                 # print("f_key ON")
-
                 """
                 発動条件が満たされたら，NeoBeamクラスのイニシャライザにこうかとんと
                 ビーム数を渡し，戻り値のリストをBeamグループに追加する
                 """
-                n_beams = NeoBeam(bird,20)
+                n_beams = NeoBeam(bird,5)
                 beam_lst = n_beams.gen_beams()
                 # print(f"list in {beam_lst}")
                 for i in beam_lst:
                     beams.add(i)
-                #beams.add()
-
-                
+            
+            elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                beams.add(Beam(bird))
                 
 
         screen.blit(bg_img, [0, 0])
