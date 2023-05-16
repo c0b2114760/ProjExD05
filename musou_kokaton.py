@@ -313,7 +313,7 @@ def main():
             time.sleep(2)
             return
 
-        if key_lst[pg.K_CAPSLOCK] and score.score > 2 and len(shields) == 0:
+        if key_lst[pg.K_CAPSLOCK] and score.score > 50 and len(shields) == 0:
             score.score_up(-50)  # Deduct 50 points from the score
             shields.add(Shield(bird, 400))  # Add the defensive wall to the shields group
 
