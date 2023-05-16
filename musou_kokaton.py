@@ -51,7 +51,7 @@ class Bird(pg.sprite.Sprite):
         """
         こうかとん画像Surfaceを生成する
         引数1 num：こうかとん画像ファイル名の番号
-        引数2 xy：こうかとん画像の位置座標タプル
+        引数2 xy：こうかとん画像の位置座標タプル 
         """
         super().__init__()
         img0 = pg.transform.rotozoom(pg.image.load(f"ex04/fig/{num}.png"), 0, 2.0)
@@ -171,21 +171,23 @@ class Beam(pg.sprite.Sprite):
     """
     ビームに関するクラス
     """
-    def __init__(self, bird: Bird):
+    def __init__(self, bird: Bird, rad = 0):
         """
         ビーム画像Surfaceを生成する
         引数 bird：ビームを放つこうかとん
         """
+        # print(f"rad = {rad}")
         super().__init__()
         self.vx, self.vy = bird.get_direction()
         angle = math.degrees(math.atan2(-self.vy, self.vx))
-        self.image = pg.transform.rotozoom(pg.image.load(f"ex04/fig/beam.png"), angle, 2.0)
-        self.vx = math.cos(math.radians(angle))
-        self.vy = -math.sin(math.radians(angle))
+        self.image = pg.transform.rotozoom(pg.image.load(f"ex04/fig/beam.png"), angle + rad, 2.0)
+        self.vx = math.cos(math.radians(angle + rad))
+        self.vy = -math.sin(math.radians(angle + rad))
         self.rect = self.image.get_rect()
-        self.rect.centery = bird.rect.centery+bird.rect.height*self.vy
-        self.rect.centerx = bird.rect.centerx+bird.rect.width*self.vx
+        self.rect.centery = bird.rect.centery + bird.rect.height*self.vy
+        self.rect.centerx = bird.rect.centerx + bird.rect.width*self.vx
         self.speed = 10
+
 
     def update(self):
         """
@@ -195,6 +197,32 @@ class Beam(pg.sprite.Sprite):
         self.rect.move_ip(+self.speed*self.vx, +self.speed*self.vy)
         if check_bound(self.rect) != (True, True):
             self.kill()
+
+class NeoBeam(pg.sprite.Sprite):
+    def __init__(self, bird: Bird, num: int):   # NeoBeamクラスのイニシャライザの引数を，こうかとんbirdとビーム数numとする
+        super().__init__()
+        self.num = num
+        self.bird = bird
+
+    def gen_beams(self):
+        """
+        NeoBeamクラスのgen_beamsメソッドで，
+        ‐50°～+51°の角度の範囲で指定ビーム数の分だけBeamオブジェクトを生成し，
+        リストにappendする → リストを返す
+        """
+        start_angle = -50
+        end_angle = 51
+        
+        range_size = end_angle - start_angle
+        angle_interval = range_size / (self.num-1)
+
+        angles = [start_angle + i * angle_interval for i in range(self.num)]
+
+        print(angles)
+
+        neo_beams = [Beam(self.bird,rad=angles[i]) for i in range(self.num)]
+        return neo_beams
+    
 
 
 class Explosion(pg.sprite.Sprite):
@@ -287,6 +315,7 @@ def main():
     exps = pg.sprite.Group()
     emys = pg.sprite.Group()
 
+    
     tmr = 0
     clock = pg.time.Clock()
     while True:
@@ -294,7 +323,20 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return 0
-            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+            
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE and key_lst[pg.K_LSHIFT] :
+                # print("f_key ON")
+                """
+                発動条件が満たされたら，NeoBeamクラスのイニシャライザにこうかとんと
+                ビーム数を渡し，戻り値のリストをBeamグループに追加する
+                """
+                n_beams = NeoBeam(bird,5)
+                beam_lst = n_beams.gen_beams()
+                # print(f"list in {beam_lst}")
+                for i in beam_lst:
+                    beams.add(i)
+            
+            elif event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
                 beams.add(Beam(bird))
             if event.type == pg.KEYDOWN and event.key == pg.K_RSHIFT and score.score > 100:
                 score.score -= 100
