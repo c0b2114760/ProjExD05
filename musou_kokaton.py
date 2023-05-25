@@ -181,7 +181,7 @@ class Beam(pg.sprite.Sprite):
         super().__init__()
         self.vx, self.vy = bird.get_direction()
         angle = math.degrees(math.atan2(-self.vy, self.vx))
-        self.image = pg.transform.rotozoom(pg.image.load(f"ex04/fig/beam.png"), angle + rad, 2.0)
+        self.image = pg.transform.rotozoom(pg.image.load(f"ex05/fig/flame.png"), angle + rad, 0.1)
         self.vx = math.cos(math.radians(angle + rad))
         self.vy = -math.sin(math.radians(angle + rad))
         self.rect = self.image.get_rect()
